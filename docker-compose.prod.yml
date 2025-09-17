@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:6-jammy
+    container_name: propertyhub-mongo-prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: propertyhub
+    volumes:
+      - mongo_data_prod:/data/db
+    networks:
+      - propertyhub-network
+    # Don't expose ports in production (internal network only)
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: propertyhub-backend-prod
+    restart: always
+    env_file:
+      - ./backend/.env.production
+    environment:
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/propertyhub?authSource=admin
+      NODE_ENV: production
+    depends_on:
+      - mongo
+    networks:
+      - propertyhub-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: propertyhub-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - propertyhub-network
+
+networks:
+  propertyhub-network:
+    driver: bridge
+
+volumes:
+  mongo_data_prod:
+    driver: local

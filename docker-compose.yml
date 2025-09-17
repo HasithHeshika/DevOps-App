@@ -1,0 +1,73 @@
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:6-jammy
+    container_name: propertyhub-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: propertyhub
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./backend/scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - propertyhub-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/propertyhub --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: propertyhub-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override database connection for container network
+      MONGODB_URI: mongodb://admin:password123@mongo:27017/propertyhub?authSource=admin
+      # CORS origin (must match frontend URL)
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: production
+      API_PREFIX: /api
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - propertyhub-network
+    volumes:
+      # Mount logs directory (optional)
+      - ./logs:/app/logs
+
+  # Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: propertyhub-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - propertyhub-network
+
+networks:
+  propertyhub-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
