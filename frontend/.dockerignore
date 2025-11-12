@@ -1,0 +1,22 @@
+// filepath: frontend/.dockerignore
+node_modules
+npm-debug.log
+yarn-error.log
+.git
+.gitignore
+README.md
+.nyc_output
+coverage
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+build
+dist
+logs
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
