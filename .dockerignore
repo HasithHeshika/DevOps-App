@@ -1,0 +1,52 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+DOCKER_DEPLOYMENT.md
+COMMIT_SUMMARY.md
+*.md
+
+# CI/CD
+.github
+Jenkinsfile
+jenkins/
+
+# Docker files
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Build artifacts
+node_modules
+npm-debug.log
+build
+dist
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Testing
+coverage
+.nyc_output
+
+# Temporary files
+tmp
+temp
+*.tmp

@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-server
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"    # Jenkins Web UI
+      - "50000:50000"  # Jenkins agent communication
+    volumes:
+      # Persist Jenkins data
+      - jenkins_home:/var/jenkins_home
+      
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      # Mount Docker binary
+      - /usr/bin/docker:/usr/bin/docker
+      
+      # Mount Docker Compose (optional)
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+    environment:
+      # Java options for Jenkins
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      
+      # Jenkins options
+      - JENKINS_OPTS=--httpPort=8080
+      
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+
+  # Optional: Jenkins agent for distributed builds
+  jenkins-agent:
+    image: jenkins/inbound-agent:latest
+    container_name: jenkins-agent
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=docker-agent
+      # Replace with your actual secret from Jenkins
+      - JENKINS_SECRET=your-agent-secret-here
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    depends_on:
+      - jenkins
+    networks:
+      - jenkins-network
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+    driver: local
+
+networks:
+  jenkins-network:
+    driver: bridge
