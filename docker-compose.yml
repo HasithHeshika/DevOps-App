@@ -12,7 +12,6 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-      - ./backend/scripts:/docker-entrypoint-initdb.d:ro
     networks:
       - propertyhub-network
     healthcheck:
