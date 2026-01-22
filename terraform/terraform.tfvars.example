@@ -1,0 +1,34 @@
+# Terraform Variables Example File
+# Copy this file to terraform.tfvars and update with your values
+# DO NOT commit terraform.tfvars to Git!
+
+# AWS Configuration
+aws_region = "ap-south-1"  # Change to your preferred region
+
+# Project Configuration
+project_name = "propertyhub"
+environment  = "dev"
+
+# EC2 Configuration
+instance_type = "t2.micro"  # Free tier eligible
+
+# Ubuntu 22.04 LTS AMI IDs by region:
+# ap-south-1 (Mumbai): ami-0c2af51e265bd5e0e
+# us-east-1 (N. Virginia): ami-0c7217cdde317cfec
+# us-west-2 (Oregon): ami-0efcece6bed30fd98
+# eu-west-1 (Ireland): ami-0905a3c97561e0b69
+ami_id = "ami-0c2af51e265bd5e0e"
+
+# SSH Key
+key_name = "propertyhub-key"
+
+# DockerHub
+dockerhub_username = "hasithheshika"  # Change to your DockerHub username
+
+# MongoDB
+mongodb_root_password = "PropertyHub@2026!"  # Change to a strong password
+
+# Security
+# To restrict SSH to your IP only, get your IP: curl ifconfig.me
+# Then set: allowed_ssh_cidr = ["YOUR_IP/32"]
+allowed_ssh_cidr = ["0.0.0.0/0"]  # WARNING: Allows SSH from anywhere!
