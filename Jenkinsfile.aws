@@ -17,9 +17,6 @@ pipeline {
         // AWS Configuration
         AWS_REGION = 'ap-south-1'
         TERRAFORM_DIR = 'terraform'
-        
-        // SSH Configuration
-        SSH_KEY = credentials('aws-ssh-key')
     }
     
     stages {
@@ -163,20 +160,10 @@ pipeline {
             steps {
                 echo "🚀 Deploying to AWS EC2: ${env.SERVER_IP}"
                 
-                sshagent(['aws-ssh-key']) {
+                script {
                     sh """
-                        # Wait for server to be accessible
-                        for i in {1..30}; do
-                            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@${env.SERVER_IP} 'echo Connected' 2>/dev/null; then
-                                echo "✅ Server is accessible"
-                                break
-                            fi
-                            echo "⏳ Waiting for server... (\$i/30)"
-                            sleep 2
-                        done
-                        
-                        # Deploy application
-                        ssh -o StrictHostKeyChecking=no ubuntu@${env.SERVER_IP} '
+                        # Deploy application using SSH key from home directory
+                        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${env.SERVER_IP} '
                             cd /home/ubuntu/propertyhub
                             
                             # Stop containers
