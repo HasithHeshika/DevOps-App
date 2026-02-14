@@ -162,8 +162,8 @@ pipeline {
                 
                 script {
                     sh """
-                        # Deploy application using SSH key from home directory
-                        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${env.SERVER_IP} '
+                        # Deploy application using SSH key from Jenkins home
+                        ssh -i /var/lib/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${env.SERVER_IP} '
                             cd /home/ubuntu/propertyhub
                             
                             # Stop containers
