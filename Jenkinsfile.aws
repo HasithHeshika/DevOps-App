@@ -132,19 +132,25 @@ pipeline {
             steps {
                 echo '📋 Getting AWS infrastructure information...'
                 script {
-                    dir(TERRAFORM_DIR) {
-                        env.SERVER_IP = sh(
-                            returnStdout: true,
-                            script: 'terraform output -raw app_server_public_ip 2>/dev/null || echo ""'
-                        ).trim()
+                    // Try to get IP from Terraform, fallback to hardcoded IP
+                    try {
+                        dir(TERRAFORM_DIR) {
+                            env.SERVER_IP = sh(
+                                returnStdout: true,
+                                script: 'terraform output -raw app_server_public_ip 2>/dev/null || echo ""'
+                            ).trim()
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  Terraform not available, using configured IP"
+                        env.SERVER_IP = ""
                     }
-                }
-                
-                script {
-                    if (env.SERVER_IP) {
-                        echo "✅ Found server IP: ${env.SERVER_IP}"
+                    
+                    // Fallback to hardcoded IP if Terraform fails
+                    if (!env.SERVER_IP || env.SERVER_IP == "") {
+                        env.SERVER_IP = "13.204.209.135"
+                        echo "📌 Using configured server IP: ${env.SERVER_IP}"
                     } else {
-                        echo "⚠️  No infrastructure found. Skipping deployment."
+                        echo "✅ Found server IP from Terraform: ${env.SERVER_IP}"
                     }
                 }
             }
