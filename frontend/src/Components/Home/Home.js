@@ -130,7 +130,7 @@ const Home = () => {
       <section className="search-section">
         <div className="container">
           <div className="search-card">
-            <h3>Find Your Best Property</h3>
+            <h3>Hasith Heshika</h3>
             <div className="search-form">
               <div className="search-group">
                 <label>Property Type</label>
