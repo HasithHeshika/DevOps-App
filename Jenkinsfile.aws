@@ -173,13 +173,22 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ubuntu@${env.SERVER_IP} '
                             cd /home/ubuntu/propertyhub
                             
+                            # Stop containers
+                            echo "🛑 Stopping containers..."
+                            docker-compose down
+                            
+                            # Remove old images to force fresh pull
+                            echo "🗑️  Removing old images..."
+                            docker rmi hasithheshika/propertyhub-frontend:latest || true
+                            docker rmi hasithheshika/propertyhub-backend:latest || true
+                            
                             # Pull latest images
                             echo "📥 Pulling latest Docker images..."
-                            docker-compose pull
+                            docker-compose pull --ignore-pull-failures
                             
-                            # Restart containers with new images
-                            echo "🔄 Restarting containers..."
-                            docker-compose up -d
+                            # Start containers with new images
+                            echo "🔄 Starting containers with fresh images..."
+                            docker-compose up -d --force-recreate
                             
                             # Wait for services to be healthy
                             echo "⏳ Waiting for services to start..."
